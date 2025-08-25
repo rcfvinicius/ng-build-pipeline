@@ -7,24 +7,30 @@ const port = 3000;
 const server = http.createServer((req, res) => {
     console.log(req.method)
     if(req.url === '/') {
-        const pathUrl = path.join(__dirname, 'index.html');
-        return returnFile(res,pathUrl,'index.html não encontrado!');
+        const route = path.join(__dirname, 'index.html');
+        return returnFile(res, route, 'index.html não encontrado!');
     }
     if(req.url.startsWith('/assets/')){
         const pathSegmented = req.url.split('/');
         pathSegmented.unshift(__dirname);
-        const pathUrl = path.join(...pathSegmented);
+        const route = path.join(...pathSegmented);
         const assetName = req.url.split('/').pop();
 
-        return returnFile(res,pathUrl, `asset "${assetName}" não encontrado!`);
+        return returnFile(res, route, `Asset "${assetName}" não encontrado!`);
     }
-    if(req.url === 'FIXME: favicon'){
-        
-        return;
+    if(req.url === '/favicon.ico' || req.url.includes('/main') || req.url.includes('/styles')){
+        const route = path.join(__dirname, req.url);
+        let headers;
+        if(req.url === '/favicon.ico') headers = {'Content-Type':'image/x-icon'};
+        if(req.url.includes('/main')) headers = {'Content-Type':'application/javascript'};
+        if(req.url.includes('/styles')) headers = {'Content-Type':'text/css'};
+
+        res.writeHead(200, headers);
+        return returnFile(res, route, `Recurso "${req.url}" não encontrado!`);
     }
 
-
-    return res.end('Rota não encontrada');
+    res.writeHead(404);
+    res.end(`Rota "${req.url}" não encontrada`);
 });
 
 server.listen(port, () => {
