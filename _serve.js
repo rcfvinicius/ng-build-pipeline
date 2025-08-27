@@ -7,7 +7,7 @@ const port = 3000;
 const server = http.createServer((req, res) => {
     console.log(req.method);
     req.url = decodeURIComponent(req.url);
-    if (req.url === '/') {
+    if (req.url === '/' || req.headers['accept']?.includes('text/html')) {
         const route = path.join(__dirname, 'index.html');
         return returnFile(res, route, 'index.html não encontrado!');
     }
