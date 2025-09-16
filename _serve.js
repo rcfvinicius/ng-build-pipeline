@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const port = 3000;
 
-
 const server = http.createServer((req, res) => {
     console.log(req.method);
     req.url = decodeURIComponent(req.url);
@@ -26,8 +25,7 @@ const server = http.createServer((req, res) => {
         if (req.url.includes('.js')) headers = { 'Content-Type': 'application/javascript' };
         if (req.url.includes('/styles')) headers = { 'Content-Type': 'text/css' };
 
-        res.writeHead(200, headers);
-        return returnFile(res, route, `Recurso "${req.url}" não encontrado!`);
+        return returnFile(res, route, `Recurso "${req.url}" não encontrado!`, headers);
     }
 
     const route = path.join(__dirname, req.url);
@@ -37,12 +35,7 @@ const server = http.createServer((req, res) => {
     //res.end(`Rota "${req.url}" não encontrada`);
 });
 
-server.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
-});
-
-
-function returnFile(res, route, notFoundMessage) {
+function returnFile(res, route, notFoundMessage, headers = null) {
     if (fs.existsSync(route)) {
         fs.readFile(route, (err, data) => {
             if (err) {
@@ -50,6 +43,7 @@ function returnFile(res, route, notFoundMessage) {
                 res.end(`Erro ao ler o arquivo: ${err}`);
                 return;
             }
+            res.writeHead(200, headers);
             res.write(data);
             res.end();
         });
@@ -59,3 +53,7 @@ function returnFile(res, route, notFoundMessage) {
     res.writeHead(404);
     res.end(notFoundMessage);
 }
+
+server.listen(port, () => {
+    console.log(`Servidor rodando: http://localhost:${port}`);
+});
