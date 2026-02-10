@@ -16,7 +16,15 @@ const server = http.createServer((req, res) => {
         const route = path.join(...pathSegmented);
         const assetName = req.url.split('/').pop();
 
-        return returnFile(res, route, `Asset "${assetName}" não encontrado!`);
+        let headers = null;
+        if (req.url.startsWith('/assets/images')) {
+            let complement;
+            if (assetName.includes('.svg')) complement = 'svg+xml';
+            else complement = assetName.split('.').pop();
+            headers = { 'Content-Type': `image/${complement}` };
+        }
+
+        return returnFile(res, route, `Asset "${assetName}" não encontrado!`, headers);
     }
     if (req.url === '/favicon.ico' || req.url.includes('.js') || req.url.includes('/styles')) {
         const route = path.join(__dirname, req.url);
